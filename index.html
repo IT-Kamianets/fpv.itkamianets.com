@@ -1,0 +1,940 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FPV LAB — Drone Learning Platform</title>
+
+<style>
+:root {
+  --bg: #0b0e14;
+  --panel: #10141d;
+  --panel2: #151b26;
+  --border: #293140;
+  --text: #e9edf5;
+  --muted: #929db0;
+  --accent: #c4f269;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 255px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 25px 15px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px;
+  margin-bottom: 35px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #11170b;
+  border-radius: 11px;
+  font-size: 22px;
+}
+
+.brand-accent {
+  color: var(--accent);
+}
+
+.menu-title {
+  padding: 0 12px;
+  margin: 18px 0 10px;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: #778398;
+}
+
+.nav-list {
+  display: grid;
+  gap: 5px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  color: #a3adbf;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.nav-link:hover {
+  background: #1b222e;
+  color: white;
+}
+
+.nav-link.active {
+  background: #252d38;
+  border-color: #35404e;
+  color: var(--accent);
+}
+
+.nav-icon {
+  width: 20px;
+  text-align: center;
+  font-size: 17px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 18px 8px 0;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.main {
+  margin-left: 255px;
+  min-height: 100vh;
+  padding: 30px 36px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--border);
+}
+
+.breadcrumb {
+  color: #7f8a9e;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.breadcrumb span {
+  color: var(--accent);
+  margin: 0 7px;
+}
+
+.page-title {
+  margin-top: 10px;
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: -0.7px;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.icon-btn, .avatar, .menu-toggle {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #303a49;
+  border-radius: 10px;
+  background: var(--panel2);
+  color: var(--text);
+}
+
+.icon-btn:hover, .menu-toggle:hover {
+  border-color: var(--accent);
+}
+
+.avatar {
+  background: var(--accent);
+  color: #11170b;
+  font-weight: bold;
+  border: 0;
+}
+
+.menu-toggle {
+  display: none;
+}
+
+.page-content {
+  padding-top: 28px;
+}
+
+.empty-page {
+  min-height: 57vh;
+  border: 1px dashed #354052;
+  border-radius: 16px;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.empty-symbol {
+  width: 65px;
+  height: 65px;
+  border: 1px solid #3a4655;
+  border-radius: 17px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 30px;
+  margin-bottom: 22px;
+}
+
+.empty-page h2 {
+  font-size: 21px;
+  margin-bottom: 10px;
+}
+
+.empty-page p {
+  max-width: 430px;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.route-label {
+  margin-top: 18px;
+  color: #788498;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.primary-btn {
+  border: 0;
+  border-radius: 9px;
+  padding: 13px 18px;
+  background: var(--accent);
+  color: #11170b;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.primary-btn:hover {
+  background: #d5ff8c;
+  transform: translateY(-1px);
+}
+
+.secondary-btn {
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 9px;
+}
+
+.secondary-btn:hover {
+  border-color: var(--accent);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(3, 5, 9, 0.83);
+  backdrop-filter: blur(5px);
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal {
+  width: min(100%, 470px);
+  padding: 30px;
+  border: 1px solid #394453;
+  border-radius: 17px;
+  background: #141a24;
+  position: relative;
+  animation: appear 0.18s ease;
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-close {
+  position: absolute;
+  top: 13px;
+  right: 15px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 27px;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+}
+
+.modal h2 {
+  margin: 13px 0 10px;
+}
+
+.modal p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.modal .primary-btn {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.modal-empty {
+  margin: 22px 0;
+  padding: 24px 15px;
+  min-height: 110px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 10px;
+  border: 1px dashed #3a4655;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.modal-empty span {
+  color: var(--accent);
+  font-size: 28px;
+}
+
+.auth-screen {
+  display: none;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+}
+
+.auth-card {
+  width: min(100%, 440px);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 35px;
+  text-align: center;
+}
+
+.auth-card .brand-icon {
+  margin: 0 auto 20px;
+}
+
+.auth-card h1 {
+  margin-bottom: 10px;
+}
+
+.auth-card > p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.auth-card .primary-btn {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 25px;
+  text-align: left;
+}
+
+.auth-form label {
+  font-size: 12px;
+  color: #bac3d1;
+}
+
+.auth-form input {
+  width: 100%;
+  margin-top: 7px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  background: #0b0e14;
+  border-radius: 8px;
+  color: white;
+  outline: none;
+}
+
+.auth-form input:focus {
+  border-color: var(--accent);
+}
+
+.auth-form .primary-btn {
+  margin-top: 5px;
+}
+
+.auth-note {
+  margin-top: 16px;
+  color: #778398;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+#toast {
+  position: fixed;
+  z-index: 100;
+  bottom: 25px;
+  left: 50%;
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  pointer-events: none;
+  background: var(--accent);
+  color: #11170b;
+  padding: 12px 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .main {
+    margin-left: 220px;
+    padding: 24px 20px;
+  }
+}
+
+@media (max-width: 650px) {
+  .sidebar {
+    position: fixed;
+    width: min(290px, 85vw);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: none;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 15px 0 45px #0009;
+  }
+
+  .main {
+    margin-left: 0;
+    padding: 20px 15px;
+  }
+
+  .menu-toggle {
+    display: grid;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .topbar-left {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .page-title {
+    font-size: 21px;
+  }
+
+  .top-actions {
+    gap: 5px;
+  }
+
+  .icon-btn, .avatar, .menu-toggle {
+    width: 35px;
+    height: 35px;
+    flex-shrink: 0;
+  }
+
+  .empty-page {
+    min-height: 48vh;
+  }
+
+  .modal {
+    padding: 25px 20px;
+  }
+}
+
+@media (max-width: 380px) {
+  .topbar {
+    flex-wrap: wrap;
+  }
+
+  .top-actions {
+    margin-left: auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="#dashboard" class="brand" data-route="dashboard">
+      <span class="brand-icon">F</span>
+      <span>FPV<span class="brand-accent"> LAB</span></span>
+    </a>
+
+    <div class="menu-title">ГОЛОВНЕ МЕНЮ</div>
+    <nav class="nav-list" id="mainNav"></nav>
+
+    <div class="menu-title">СИСТЕМА</div>
+    <nav class="nav-list" id="systemNav"></nav>
+
+    <div class="sidebar-bottom">
+      <span class="status-dot"></span>
+      <span>FPV LAB · Prototype</span>
+    </div>
+  </aside>
+
+  <main class="main" id="mainScreen">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle"
+          aria-label="Відкрити меню">☰</button>
+
+        <div>
+          <div class="breadcrumb">
+            FPV LAB <span>/</span>
+            <span id="breadcrumbTitle">Головна</span>
+          </div>
+          <h1 class="page-title" id="pageTitle">Головний екран</h1>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="icon-btn" id="compatibilityBtn"
+          title="Перевірка сумісності"
+          aria-label="Перевірка сумісності">◇</button>
+
+        <button class="icon-btn" id="settingsBtn"
+          title="Налаштування"
+          aria-label="Налаштування">⚙</button>
+
+        <button class="avatar" id="profileBtn"
+          title="Профіль користувача">U</button>
+      </div>
+    </header>
+
+    <section class="page-content" id="pageContent"></section>
+  </main>
+</div>
+
+<section class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="brand-icon">F</div>
+    <h1>FPV<span class="brand-accent"> LAB</span></h1>
+    <p>Онбординг та авторизація</p>
+
+    <form class="auth-form" id="authForm">
+      <label>
+        Електронна пошта
+        <input type="email" id="email"
+          placeholder="name@example.com" required>
+      </label>
+
+      <label>
+        Пароль
+        <input type="password" id="password"
+          placeholder="Введіть пароль" minlength="6" required>
+      </label>
+
+      <button class="primary-btn" type="submit">
+        Увійти в систему
+      </button>
+    </form>
+
+    <p class="auth-note">
+      Демонстраційна форма. Справжня реєстрація та перевірка
+      облікових даних потребують серверної частини.
+    </p>
+
+    <button class="secondary-btn" id="backFromAuth"
+      style="width:100%; margin-top:12px">
+      Назад до платформи
+    </button>
+  </div>
+</section>
+
+<div class="modal-overlay" id="compatibilityModal"
+  role="dialog" aria-modal="true"
+  aria-labelledby="modalTitle">
+  <section class="modal">
+    <button class="modal-close" id="closeModal"
+      aria-label="Закрити">×</button>
+
+    <div class="eyebrow">ДОПОМІЖНИЙ МОДУЛЬ</div>
+    <h2 id="modalTitle">Перевірка сумісності</h2>
+    <p>
+      Тут буде розміщено інструмент перевірки сумісності
+      компонентів обраного дрона.
+    </p>
+
+    <div class="modal-empty">
+      <span>◇</span>
+      <span id="compatibilityMessage">
+        Обладнання ще не вибрано
+      </span>
+    </div>
+
+    <button class="primary-btn" id="confirmModal">
+      Зрозуміло
+    </button>
+  </section>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+const pages = [
+  {
+    id: "dashboard",
+    title: "Головний екран",
+    label: "Головна",
+    icon: "⌂",
+    description: "Головна панель платформи FPV LAB."
+  },
+  {
+    id: "education",
+    title: "Освітній центр",
+    label: "Освітній центр",
+    icon: "▤",
+    description: "Простір курсів, уроків і навчальних матеріалів."
+  },
+  {
+    id: "drone-builder",
+    title: "3D-конструктор дронів",
+    label: "3D-конструктор",
+    icon: "◇",
+    description: "Місце для майбутнього інтерактивного 3D-конструктора."
+  },
+  {
+    id: "garage",
+    title: "Віртуальний гараж",
+    label: "Віртуальний гараж",
+    icon: "▣",
+    description: "Місце для збережених моделей і конфігурацій дронів."
+  },
+  {
+    id: "liftoff",
+    title: "Хаб тренувань у Liftoff",
+    label: "Тренування Liftoff",
+    icon: "✈",
+    description: "Простір для тренувальних сесій і прогресу в симуляторі."
+  },
+  {
+    id: "catalog",
+    title: "Каталог компонентів та база знань",
+    label: "Каталог і база знань",
+    icon: "▦",
+    description: "Каталог комплектуючих і довідкові матеріали."
+  },
+  {
+    id: "profile",
+    title: "Профіль користувача та рейтинги",
+    label: "Профіль і рейтинги",
+    icon: "◎",
+    description: "Особистий профіль, досягнення та рейтинги."
+  },
+  {
+    id: "auth",
+    title: "Онбординг та авторизація",
+    label: "Авторизація",
+    icon: "⇥",
+    description: "Допоміжний екран входу до платформи."
+  },
+  {
+    id: "compatibility",
+    title: "Перевірка сумісності",
+    label: "Перевірка сумісності",
+    icon: "◇",
+    description: "Модальне вікно перевірки компонентів."
+  },
+  {
+    id: "settings",
+    title: "Налаштування",
+    label: "Налаштування",
+    icon: "⚙",
+    description: "Налаштування платформи та інтерфейсу."
+  }
+];
+
+const mainNav = document.getElementById("mainNav");
+const systemNav = document.getElementById("systemNav");
+const sidebar = document.getElementById("sidebar");
+const app = document.getElementById("app");
+const mainScreen = document.getElementById("mainScreen");
+const authScreen = document.getElementById("authScreen");
+const pageTitle = document.getElementById("pageTitle");
+const breadcrumbTitle = document.getElementById("breadcrumbTitle");
+const pageContent = document.getElementById("pageContent");
+const modal = document.getElementById("compatibilityModal");
+const toast = document.getElementById("toast");
+
+let toastTimeout;
+
+function createNavLink(page) {
+  const link = document.createElement("a");
+  link.href = "#" + page.id;
+  link.className = "nav-link";
+  link.dataset.route = page.id;
+  link.innerHTML = `
+    <span class="nav-icon">${page.icon}</span>
+    <span>${page.label}</span>
+  `;
+
+  link.addEventListener("click", function(event) {
+    event.preventDefault();
+    navigate(page.id);
+  });
+
+  return link;
+}
+
+pages.filter(p => p.id !== "auth" && p.id !== "settings")
+  .forEach(page => mainNav.appendChild(createNavLink(page)));
+
+pages.filter(p => p.id === "auth" || p.id === "settings")
+  .forEach(page => systemNav.appendChild(createNavLink(page)));
+
+function navigate(id) {
+  const page = pages.find(p => p.id === id);
+
+  if (!page) {
+    navigate("dashboard");
+    return;
+  }
+
+  if (id === "compatibility") {
+    openModal();
+    return;
+  }
+
+  if (id === "auth") {
+    app.style.display = "none";
+    authScreen.style.display = "flex";
+    sidebar.classList.remove("mobile-open");
+    history.pushState({ page: id }, "", "#auth");
+    return;
+  }
+
+  authScreen.style.display = "none";
+  app.style.display = "block";
+  sidebar.classList.remove("mobile-open");
+
+  pageTitle.textContent = page.title;
+  breadcrumbTitle.textContent = page.label;
+
+  document.querySelectorAll(".nav-link").forEach(link => {
+    link.classList.toggle("active", link.dataset.route === id);
+  });
+
+  renderPage(page);
+
+  if (location.hash !== "#" + id) {
+    history.pushState({ page: id }, "", "#" + id);
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderPage(page) {
+  const isSettings = page.id === "settings";
+
+  pageContent.innerHTML = `
+    <div class="empty-page">
+      <div class="empty-symbol">${page.icon === "⌂" ? "+" : page.icon}</div>
+      <h2>${page.title}</h2>
+      <p>${page.description}</p>
+      <div class="route-label">EMPTY PAGE · /${page.id}</div>
+    </div>
+    ${isSettings ? `
+      <div style="margin-top:20px; padding:22px;
+        background:var(--panel); border:1px solid var(--border);
+        border-radius:14px">
+        <h3 style="margin-bottom:15px">Загальні налаштування</h3>
+        <label style="display:flex; gap:10px; align-items:center;
+          color:var(--muted); font-size:14px">
+          <input type="checkbox" id="reducedMotion">
+          Зменшити анімацію інтерфейсу
+        </label>
+        <p style="margin-top:12px; color:var(--muted);
+          font-size:12px; line-height:1.6">
+          Додаткові параметри можна буде реалізувати пізніше.
+        </p>
+      </div>
+    ` : ""}
+  `;
+
+  const reducedMotion = document.getElementById("reducedMotion");
+  if (reducedMotion) {
+    reducedMotion.checked =
+      document.documentElement.dataset.reducedMotion === "true";
+
+    reducedMotion.addEventListener("change", function() {
+      document.documentElement.dataset.reducedMotion =
+        String(this.checked);
+      document.documentElement.style.scrollBehavior =
+        this.checked ? "auto" : "smooth";
+      showToast("Налаштування інтерфейсу оновлено");
+    });
+  }
+}
+
+function openModal() {
+  modal.classList.add("open");
+  document.getElementById("compatibilityMessage").textContent =
+    "Обладнання ще не вибрано";
+  document.getElementById("closeModal").focus();
+}
+
+function closeModal() {
+  modal.classList.remove("open");
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2600);
+}
+
+document.getElementById("compatibilityBtn")
+  .addEventListener("click", openModal);
+
+document.getElementById("closeModal")
+  .addEventListener("click", closeModal);
+
+document.getElementById("confirmModal")
+  .addEventListener("click", closeModal);
+
+modal.addEventListener("click", function(event) {
+  if (event.target === modal) closeModal();
+});
+
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape") closeModal();
+});
+
+document.getElementById("settingsBtn")
+  .addEventListener("click", () => navigate("settings"));
+
+document.getElementById("profileBtn")
+  .addEventListener("click", () => navigate("profile"));
+
+document.getElementById("menuToggle")
+  .addEventListener("click", () => {
+    sidebar.classList.toggle("mobile-open");
+  });
+
+document.getElementById("backFromAuth")
+  .addEventListener("click", () => navigate("dashboard"));
+
+document.getElementById("authForm")
+  .addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    // Демонстраційний перехід, а не справжня авторизація.
+    navigate("dashboard");
+    showToast("Демонстраційний вхід виконано");
+  });
+
+window.addEventListener("popstate", function() {
+  const id = location.hash.replace("#", "") || "dashboard";
+  navigate(id);
+});
+
+const initialPage = location.hash.replace("#", "") || "dashboard";
+navigate(pages.some(p => p.id === initialPage)
+  ? initialPage
+  : "dashboard");
+</script>
+
+</body>
+</html>
